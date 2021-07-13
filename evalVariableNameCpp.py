@@ -3,9 +3,8 @@ import re
 
 PATERN_VARIABLE = [
     r'^[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]{1,}$',
-    r'^[A-Za-z0-9]*\s*<*[A-Za-z0-9]*>*\s*[A-Za-z0-9]*$',
+    r'^[A-Za-z0-9]{1,}\s*<[A-Za-z0-9]{1,}>\s*[A-Za-z0-9]*$',
     r'^[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]$'
-
 ]
 
 
@@ -64,40 +63,6 @@ def findVariableDeclare(ligne):
 
 
 
-def findVariableInFuction(line):
-    listVariable = []
-    variable = ""
-
-    i = 0
-    if line.count('(') > 0:
-
-        start = False
-        end = False
-
-        while i < len(line):
-
-            if line[i] == "(":
-                start = True
-                i=i+1
-
-
-            if start and not end:
-
-                if line[i] != "," and line[i] != ")":
-
-                    if line[i] != " ":
-                        variable += line[i]
-
-                else:
-                    listVariable.append(variable)
-                    variable = ""
-
-            if line[i] == ")":
-                end = True
-
-            i +=1
-
-    return listVariable
 
 
 
