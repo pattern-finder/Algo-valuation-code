@@ -139,9 +139,10 @@ def findVariableFromList(line):
 def switch(variable):
     switcher = {
         len(variable) == 1: 1,              #teste si une varaible contient plus d'une lettre
-        variable.lower() != variable : 1,  #teste si une varaible commence par une majuscule
+        variable.lower() != variable and re.search(r'[A-Z]{' + str(len(variable)) + ',}',variable) == None : 1,  #teste si une varaible commence par une majuscule
 
     }
+
     return switcher.get(True, 0)
 
 

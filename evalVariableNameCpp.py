@@ -165,9 +165,10 @@ def findVariableInFuction(line):
 def switch(variable):
     switcher = {
         len(variable) == 1: 1,              #teste si une varaible contient plus d'une lettre
-        re.search(r'[A-Z]', variable[0]) != None: 1,  #teste si une varaible commence par une majuscule
-
+        re.search(r'[A-Z]', variable[0]) != None and re.search(r'[A-Z]{'+str(len(variable))+',}', variable) == None : 1,  #teste si une varaible commence par une majuscule et que cette variable n'est pas une constante
     }
+
+
     return switcher.get(True, 0)
 
 
