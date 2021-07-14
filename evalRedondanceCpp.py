@@ -6,7 +6,12 @@ PATERN_VARIABLE = [
 ]
 
 
-def renameVariableInFuction(line):
+def findVariableInFuction(line):
+        """
+        :param line: représente une ligne du code
+        :return: retourne la liste des vairables déclaré dans l'entête des fonctions
+        """
+
         listVariable = []
         listType = []
 
@@ -44,7 +49,6 @@ def renameVariableInFuction(line):
                 listContentSplit2.append(content)
                 if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
                     listContentSplit.append(content)
-                    print(content)
 
         for varaiblePart in listContentSplit:
 
@@ -61,6 +65,11 @@ def renameVariableInFuction(line):
 
 
 def findVariableDeclare(ligne):
+    """
+    :param ligne: représente une ligne de code
+    :return: retour le la liste des variable au seins d'une fonction
+    """
+
     listVariable = []
     type = ""
     list = []
@@ -70,6 +79,7 @@ def findVariableDeclare(ligne):
         find = False
 
         while i < len(ligne) and not find:
+
             if ligne[i] == "=":
 
                 notFind = True
@@ -78,13 +88,17 @@ def findVariableDeclare(ligne):
 
                 k = i
                 var = ""
+                typeVar = ""
+                listVariableTransition = []
+
                 while k > 0 and notFind:
+
 
                     if ligne[k] == " ":
                         permissionParcourtWord = False
 
                         if var != "":
-                            listVariable.append(var)
+                            listVariableTransition.append(var)
                             var = ""
 
                     if ligne[k] == ",":
@@ -93,10 +107,11 @@ def findVariableDeclare(ligne):
                         permissionParcourtWord = False
 
                         if var != "":
-                            listVariable.append(var)
+                            listVariableTransition.append(var)
                             var = ""
 
 
+                    #Si on trouve un signe arpès avoir trouvé un séparateur ou qu'on est en train de parcourir un mot
                     if ligne[k] != "," and ligne[k] != " " and k != i:
 
                         if findSeparator or permissionParcourtWord:
@@ -107,9 +122,22 @@ def findVariableDeclare(ligne):
                         else:
                             notFind = False
 
-                   # if not notFind:
-                    #    while k > 0 and notFind:
-                         ###  type ###
+                    if not notFind:
+                        type = ""
+                        while k > 0 and ligne[k] != " ":
+                            type = ligne[k]+type
+                            k -=1
+
+
+                        for variable in listVariableTransition:
+
+                            typeVar = (type, variable)
+
+                            if typeVar not in listVariable:
+                                listVariable.append(typeVar)
+
+
+
                     k -= 1
 
             i += 1
@@ -131,6 +159,10 @@ def update_block(newBlock, blockCodes):
 
 
 def find_block(line):
+    """
+    :param: line: représente le code à analyser
+    :return retourne les différents blocks représentant ce code (fonction while for if ..)
+    """
 
     blockCodes = {}
     i = 0
@@ -170,10 +202,92 @@ def find_block(line):
 
 
 
-def rename_variable(line):
+def rename_variable(line, listVariableRename):
 
+    listType = []
+    i = 0
+
+    while i < len(listVariableRename):
+
+        type = listVariableRename[i][0]
+        if type not in listType:
+            listType.append(type)
+
+            listCurrentVar = []
+
+            for variable in listVariableRename:
+
+                if variable[0] == type:
+                    listCurrentVar.append(variable[1])
+
+
+            line = line.replace(type, "")
+
+            for variable in listCurrentVar:
+
+                ###gestion var++ et var--
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\+\+', type+"="+type+"+1", line)
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\-\-', type+"="+type+"-1", line)
+
+                line = re.sub(r'\s{1,}'+variable+r'\s{1,}', type, line)
+
+                ###gestion de opérateur mathématique
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}-', type+"-", line)
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\+', type+"+", line)
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\*', type+"*", line)
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\\', type+"|divide|", line)
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}=', type+"=", line)
+
+                ###gestion des symbile []
+                line = re.sub(r'\[\s{0,}'+variable+r'\s{0,}\]', "["+type+"]", line)
+
+                ###gestion de symbole ;
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,};', type+";", line)
+
+                ###gestion des symboles < >
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', type+">", line)
+                line = re.sub(r'>\s{0,}'+variable+r'\s{0,}>', ">"+type+">", line)
+                line = re.sub(r'<\s{0,}'+variable+r'\s{0,}<', "<"+type+"<", line)
+                line = re.sub(r'>\s{0,}'+variable+r'\s{0,}<', ">"+type+"<", line)
+                line = re.sub(r'<\s{0,}'+variable+r'\s{0,}>', "<"+type+">", line)
+
+                ###gestion du séparateur ","
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,},', type+",", line)
+                line = re.sub(r',\s{0,}'+variable+r'\s{0,},', ","+type+",", line)
+                line = re.sub(r',\s{0,}'+variable+r'\s{0,}=', ","+type+"=", line)
+                line = re.sub(r',\s{0,}'+variable+r'\s{0,}\)', ","+type+")", line)
+
+                ###gestion des symbole ( )
+                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\)', type+")", line)
+                line = re.sub(r'\(\s{0,}'+variable+r'\s{0,},', "("+type+",", line)
+                line = re.sub(r'\(\s{0,}'+variable+r'\s{0,}\)', "("+type+")", line)
+
+        i += 1
 
     return line
+
+
+
+def sanitize_list(liste_variable):
+    """
+    :param liste_variable: représente la liste des variables du code
+    :return: retourne la liste des variables après avoir ajouté un espace après le type de la variable. Permet de différencier les types Matrice et collection<Matrice>
+    """
+
+    id = 0
+    for elt in liste_variable:
+        cpt = elt[0].count('>')
+
+        if cpt == 0:
+            newElt = (elt[0] + " ", elt[1])
+            elt = newElt
+            liste_variable[id] = newElt
+
+        id += 1
+
+    return liste_variable
+
 
 
 
@@ -182,7 +296,7 @@ if __name__ == '__main__':
     listVariableRename = []
     listVariableRename = []
 
-    filin = open("comparaisonMatrice.cpp", "r")
+    filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
     scopeCodeUser = False
 
@@ -196,12 +310,20 @@ if __name__ == '__main__':
 
         if scopeCodeUser:
             ligne = ligne.replace('\n', '')
-            listVarToRename = renameVariableInFuction(ligne)
+
+            listVarToRenameFunction = findVariableInFuction(ligne)
+            listVarToRenameDeclare = findVariableDeclare(ligne)
 
             i = 0
-            while i < len(listVarToRename):
-                if listVarToRename[i] not in listVariableRename and listVarToRename[i] != "":
-                    listVariableRename.append(listVarToRename[i])
+            while i < len(listVarToRenameFunction):
+                if listVarToRenameFunction[i] not in listVariableRename and listVarToRenameFunction[i] != "":
+                    listVariableRename.append(listVarToRenameFunction[i])
+                i += 1
+
+            i = 0
+            for element in listVarToRenameDeclare:
+                if listVarToRenameDeclare[i] not in listVariableRename and listVarToRenameDeclare[i] != "":
+                    listVariableRename.append(element)
                 i += 1
 
             lignesCompacte +=ligne
@@ -209,11 +331,11 @@ if __name__ == '__main__':
         if "///START" == ligne[0:8]:
             scopeCodeUser = True
 
+    listVariableRename = sanitize_list(listVariableRename)
+
     print(lignesCompacte)
 
-    for var in listVariableRename:
-        lignesCompacte = lignesCompacte.replace(var[0], "")
-        lignesCompacte = lignesCompacte.replace(var[1], var[0])
+    lignesCompacte = rename_variable(lignesCompacte, listVariableRename)
 
     print(lignesCompacte)
 
@@ -221,12 +343,12 @@ if __name__ == '__main__':
     blockCodes = find_block(lignesCompacte)
 
     cptRedondance = 0
-    for block in blockCodes:
 
+    for block in blockCodes:
+        print(block)
         if blockCodes[block] > 1:
             cptRedondance += blockCodes[block]-1
 
     print(cptRedondance)
-
     ###RESULTAT
     filin.close()

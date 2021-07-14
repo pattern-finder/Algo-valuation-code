@@ -58,6 +58,7 @@ def testAlgo(nameExercice, resultat, nbMatriceResult):
 def doExercice(listMatrice, matriceInputToFind):
     currentId = 0
     solutionId = -1
+    CO = 0
 
     for matrice in listMatrice:
         ligneInputPattern = 0

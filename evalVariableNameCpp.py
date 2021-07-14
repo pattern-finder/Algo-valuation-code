@@ -60,17 +60,6 @@ def findVariableDeclare(ligne):
     return listVariable
 
 
-
-
-
-
-
-
-
-
-
-
-
 def findVariableInFuction(line):
     listVariable = []
     cpt = 0
@@ -140,7 +129,7 @@ def switch(variable):
 
 if __name__ == '__main__':
 
-    filin = open("comparaisonMatrice.cpp", "r")
+    filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
     scopeCodeUser = False
     cpt = 0

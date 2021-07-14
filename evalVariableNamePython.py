@@ -150,7 +150,7 @@ def switch(variable):
 
 if __name__ == '__main__':
 
-    filin = open("comparaisonMartice.py", "r")
+    filin = open("userCode.py", "r")
     lignes = filin.readlines()
     scopeCodeUser = False
     cpt = 0

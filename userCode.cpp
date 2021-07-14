@@ -13,9 +13,13 @@ using namespace std;
 
 ///START
 int doExercice(vector<Matrice> listPattern, Matrice result){
-    int CurrentId = 0;
+    int currentId = 0;
     int x = 0;
     int y = 0;
+    int CO = 0;
+    int a,b= 0;
+    int k = y<x<a;
+    int k = y\a;
 
     for(unsigned int i = 0; i < listPattern.size(); i++){
         x = 0;
