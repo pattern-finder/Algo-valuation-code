@@ -2,9 +2,9 @@ import re
 
 
 PATERN_VARIABLE = [
-    r'^[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]{1,}$',
-    r'^[A-Za-z0-9]{1,}\s*<[A-Za-z0-9]{1,}>\s*[A-Za-z0-9]*$',
-    r'^[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]$'
+    r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s*',
+    r'[A-Za-z0-9_]{1,}\s*<[A-Za-z0-9_]{1,}>\s*[A-Za-z0-9_]{1,}',
+    r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}',
 ]
 
 
@@ -90,14 +90,16 @@ def findVariableInFuction(line):
     listContentSplit2 = []
 
     for functionContent in listContentinit:
+        functionContent = functionContent.replace(',', ', ')
         x = functionContent.split(", ")
 
         for content in x:
-
             listContentSplit2.append(content)
-            if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
 
-                listContentSplit.append(content)
+            if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(content):
+
+                if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
+                        listContentSplit.append(content)
 
 
     for varaiblePart in listContentSplit:

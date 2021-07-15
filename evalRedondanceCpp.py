@@ -1,67 +1,68 @@
 import re
+
 PATERN_VARIABLE = [
-    r'^[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]{1,}$',
-    r'^[A-Za-z0-9]{1,}\s*<[A-Za-z0-9]{1,}>\s*[A-Za-z0-9]*$',
-    r'^[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]{1,}\s{1,}[A-Za-z0-9]$'
+    r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s*',
+    r'[A-Za-z0-9_]{1,}\s*<[A-Za-z0-9_]{1,}>\s*[A-Za-z0-9_]{1,}',
+    r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}',
 ]
 
 
+
 def findVariableInFuction(line):
-        """
-        :param line: représente une ligne du code
-        :return: retourne la liste des vairables déclaré dans l'entête des fonctions
-        """
+    listVariable = []
+    cpt = 0
+    inFunction = False
 
-        listVariable = []
-        listType = []
+    listContentinit = []
+    listVarInFunction = ""
 
-        cpt = 0
-        inFunction = False
+    for signe in line:
 
-        listContentinit = []
-        listVarInFunction = ""
+        if signe == "(":
+            cpt +=1
+            inFunction = True
 
-        for signe in line:
+        elif signe == ")":
+            cpt -=1
 
-            if signe == "(":
-                cpt += 1
-                inFunction = True
-
-            elif signe == ")":
-                cpt -= 1
-
-            if inFunction:
-                if True and cpt > 0 and signe != "(":
-                    listVarInFunction += signe
-
-                else:
-                    listContentinit.append(listVarInFunction)
-                    listVarInFunction = ""
-
-        listContentSplit = []
-        listContentSplit2 = []
-
-        for functionContent in listContentinit:
-            x = functionContent.split(", ")
-
-            for content in x:
-
-                listContentSplit2.append(content)
-                if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
-                    listContentSplit.append(content)
-
-        for varaiblePart in listContentSplit:
-
-            if ">" in varaiblePart and " " not in varaiblePart:
-                parts = varaiblePart.split(">")
+        if inFunction:
+            if True and cpt > 0 and signe != "(":
+                listVarInFunction += signe
 
             else:
-                parts = varaiblePart.split(" ")
+                listContentinit.append(listVarInFunction)
+                listVarInFunction = ""
 
 
-            listVariable.append((parts[0], parts[len(parts) - 1]))
+    listContentSplit = []
+    listContentSplit2 = []
 
-        return listVariable
+    for functionContent in listContentinit:
+        functionContent = functionContent.replace(',', ', ')
+        x = functionContent.split(", ")
+
+        for content in x:
+            listContentSplit2.append(content)
+
+            if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(content):
+
+                if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
+                        listContentSplit.append(content)
+
+
+    for varaiblePart in listContentSplit:
+
+        if ">" in varaiblePart and " " not in varaiblePart:
+            parts = varaiblePart.split(">")
+
+        else:
+            parts = varaiblePart.split(" ")
+
+        listVariable.append(parts[len(parts)-1])
+
+
+    return listVariable
+
 
 
 def findVariableDeclare(ligne):
@@ -135,8 +136,6 @@ def findVariableDeclare(ligne):
 
                             if typeVar not in listVariable:
                                 listVariable.append(typeVar)
-
-
 
                     k -= 1
 
@@ -293,9 +292,9 @@ def sanitize_list(liste_variable):
 
 if __name__ == '__main__':
 
+    listFunction = []
     listVariableRename = []
-    listVariableRename = []
-
+    listVarBlock = []
     filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
     scopeCodeUser = False
@@ -308,11 +307,16 @@ if __name__ == '__main__':
         if "///END" == ligne[0:6]:
             scopeCodeUser = False
 
+
+            listFunction.append(listVariableRename)
+
+
         if scopeCodeUser:
+
             ligne = ligne.replace('\n', '')
 
-            listVarToRenameFunction = findVariableInFuction(ligne)
-            listVarToRenameDeclare = findVariableDeclare(ligne)
+            listeVarInitFunction = findVariableInFuction(ligne)
+            listVarToRenameFunction = listeVarInitFunction + findVariableDeclare(ligne)
 
             i = 0
             while i < len(listVarToRenameFunction):
@@ -320,11 +324,23 @@ if __name__ == '__main__':
                     listVariableRename.append(listVarToRenameFunction[i])
                 i += 1
 
-            i = 0
-            for element in listVarToRenameDeclare:
-                if listVarToRenameDeclare[i] not in listVariableRename and listVarToRenameDeclare[i] != "":
-                    listVariableRename.append(element)
-                i += 1
+            if listeVarInitFunction != []:
+                listFunction.append(listVarToRenameFunction)
+
+                listVarToRenameFunction = []
+            #   i = 0
+            #    for element in listVarToRenameDeclare:
+             #       if listVarToRenameDeclare[i] not in listVariableRename and listVarToRenameDeclare[i] != "":
+             #           listVariableRename.append(element)
+           #         i += 1
+
+        #     listVarToRenameDeclare = []
+
+           # else:
+
+           #     listFunction.append(listVariableRename)
+           #     listVariableRename = []
+
 
             lignesCompacte +=ligne
 
@@ -333,11 +349,12 @@ if __name__ == '__main__':
 
     listVariableRename = sanitize_list(listVariableRename)
 
-    print(lignesCompacte)
+    for elt in listFunction:
+        print(elt)
 
     lignesCompacte = rename_variable(lignesCompacte, listVariableRename)
 
-    print(lignesCompacte)
+  #  print(lignesCompacte)
 
 
     blockCodes = find_block(lignesCompacte)
@@ -345,10 +362,10 @@ if __name__ == '__main__':
     cptRedondance = 0
 
     for block in blockCodes:
-        print(block)
+     #   print(block)
         if blockCodes[block] > 1:
             cptRedondance += blockCodes[block]-1
 
-    print(cptRedondance)
+   # print(cptRedondance)
     ###RESULTAT
     filin.close()
