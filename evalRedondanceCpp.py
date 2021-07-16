@@ -207,6 +207,50 @@ def find_block(line):
 
 
 
+def find_function(line):
+    """
+    :param: line: représente le code à analyser
+    :return retourne les différents blocks représentant ce code (fonction while for if ..)
+    """
+
+    blockCodes = []
+    i = 0
+    cptAcollade = 0
+    newBlock=""
+    addAblock = False
+
+    while i < len(line):
+
+        if line[i] == "{":
+
+            cptAcollade += 1
+            newBlock += line[i]
+            addAblock = True
+            i +=1
+
+        while cptAcollade != 0 and newBlock != "" and i < len(line):
+
+            if line[i] == "{":
+                cptAcollade += 1
+
+            elif line[i] == "}":
+                cptAcollade -= 1
+
+            if addAblock:
+                newBlock += line[i]
+
+            if cptAcollade == 0:
+
+                blockCodes.append(newBlock)
+                newBlock = ""
+            i +=1
+
+        i +=1
+
+    return blockCodes
+
+
+
 def rename_variable(line, listVariableRename):
 
     listType = []
@@ -214,61 +258,61 @@ def rename_variable(line, listVariableRename):
 
     while i < len(listVariableRename):
 
-        type = listVariableRename[i][0]
-        if type not in listType:
-            listType.append(type)
+            type = listVariableRename[i][0]
+            if type not in listType:
+                listType.append(type)
 
-            listCurrentVar = []
+                listCurrentVar = []
 
-            for variable in listVariableRename:
+                for variable in listVariableRename:
 
-                if variable[0] == type:
-                    listCurrentVar.append(variable[1])
+                    if variable[0] == type:
+                        listCurrentVar.append(variable[1])
 
 
-            line = line.replace(type, "")
+                line = line.replace(type, "")
 
-            for variable in listCurrentVar:
+                for variable in listCurrentVar:
 
-                ###gestion var++ et var--
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\+\+', type+"="+type+"+1", line)
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\-\-', type+"="+type+"-1", line)
+                    ###gestion var++ et var--
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\+\+', type+"="+type+"+1", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\-\-', type+"="+type+"-1", line)
 
-                line = re.sub(r'\s{1,}'+variable+r'\s{1,}', type, line)
+                    line = re.sub(r'\s{1,}'+variable+r'\s{1,}', type, line)
 
-                ###gestion de opérateur mathématique
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}-', type+"-", line)
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\+', type+"+", line)
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\*', type+"*", line)
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\\', type+"|divide|", line)
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}=', type+"=", line)
+                    ###gestion de opérateur mathématique
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}-', type+"-", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\+', type+"+", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\*', type+"*", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\\', type+"|divide|", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}=', type+"=", line)
 
-                ###gestion des symbile []
-                line = re.sub(r'\[\s{0,}'+variable+r'\s{0,}\]', "["+type+"]", line)
+                    ###gestion des symbile []
+                    line = re.sub(r'\[\s{0,}'+variable+r'\s{0,}\]', "["+type+"]", line)
 
-                ###gestion de symbole ;
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,};', type+";", line)
+                    ###gestion de symbole ;
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,};', type+";", line)
 
-                ###gestion des symboles < >
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', type+">", line)
-                line = re.sub(r'>\s{0,}'+variable+r'\s{0,}>', ">"+type+">", line)
-                line = re.sub(r'<\s{0,}'+variable+r'\s{0,}<', "<"+type+"<", line)
-                line = re.sub(r'>\s{0,}'+variable+r'\s{0,}<', ">"+type+"<", line)
-                line = re.sub(r'<\s{0,}'+variable+r'\s{0,}>', "<"+type+">", line)
+                    ###gestion des symboles < >
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', type+">", line)
+                    line = re.sub(r'>\s{0,}'+variable+r'\s{0,}>', ">"+type+">", line)
+                    line = re.sub(r'<\s{0,}'+variable+r'\s{0,}<', "<"+type+"<", line)
+                    line = re.sub(r'>\s{0,}'+variable+r'\s{0,}<', ">"+type+"<", line)
+                    line = re.sub(r'<\s{0,}'+variable+r'\s{0,}>', "<"+type+">", line)
 
-                ###gestion du séparateur ","
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,},', type+",", line)
-                line = re.sub(r',\s{0,}'+variable+r'\s{0,},', ","+type+",", line)
-                line = re.sub(r',\s{0,}'+variable+r'\s{0,}=', ","+type+"=", line)
-                line = re.sub(r',\s{0,}'+variable+r'\s{0,}\)', ","+type+")", line)
+                    ###gestion du séparateur ","
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,},', type+",", line)
+                    line = re.sub(r',\s{0,}'+variable+r'\s{0,},', ","+type+",", line)
+                    line = re.sub(r',\s{0,}'+variable+r'\s{0,}=', ","+type+"=", line)
+                    line = re.sub(r',\s{0,}'+variable+r'\s{0,}\)', ","+type+")", line)
 
-                ###gestion des symbole ( )
-                line = re.sub(r'\s{0,}'+variable+r'\s{0,}\)', type+")", line)
-                line = re.sub(r'\(\s{0,}'+variable+r'\s{0,},', "("+type+",", line)
-                line = re.sub(r'\(\s{0,}'+variable+r'\s{0,}\)', "("+type+")", line)
+                    ###gestion des symbole ( )
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\)', type+")", line)
+                    line = re.sub(r'\(\s{0,}'+variable+r'\s{0,},', "("+type+",", line)
+                    line = re.sub(r'\(\s{0,}'+variable+r'\s{0,}\)', "("+type+")", line)
 
-        i += 1
+            i += 1
 
     return line
 
@@ -305,11 +349,13 @@ if __name__ == '__main__':
     listVarBlock = []
     filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
+
     scopeCodeUser = False
     firstInsert = False
 
     lignesCompacte = ""
     newBlock = []
+    functionCode = ""
 
 
     for ligne in lignes:
@@ -322,14 +368,15 @@ if __name__ == '__main__':
         if scopeCodeUser:
 
             ligne = ligne.replace('\n', '')
-            listeVarInitFunction = findVariableInFuction(ligne)
 
+            listeVarInitFunction = findVariableInFuction(ligne)
 
             if listeVarInitFunction != []:
 
                 if listVariableRename != []:
 
                     listFunction.append(listVariableRename)
+                    functionCode= ""
                     listVariableRename=[]
                     listVarToRenameFunction = []
                     lastListVariableRename = []
@@ -366,25 +413,35 @@ if __name__ == '__main__':
         if "///START" == ligne[0:8]:
             scopeCodeUser = True
 
-    listVariableRename = sanitize_list(listVariableRename)
-
-    for elt in listFunction:
-        print(elt)
-
-    lignesCompacte = rename_variable(lignesCompacte, listVariableRename)
-
-  #  print(lignesCompacte)
+  #  for elt in listFunction:
+ #       print(elt)
 
 
-    blockCodes = find_block(lignesCompacte)
+
+   # blockCodes = find_block(lignesCompacte)
+
+    blockCodesWithRenameVariable = []
+    listFunctionCode = find_function(lignesCompacte)
+
+    for function in listFunctionCode:
+        blockCodesWithRenameVariable.append(function)
+
+    codeRename = ""
+    i=0
+    for elt in blockCodesWithRenameVariable:
+
+        codeRename += rename_variable(elt, listFunction[i])
+        i +=1
+
+    print(codeRename)
 
     cptRedondance = 0
 
-    for block in blockCodes:
+   # for block in blockCodesWithRenameVariable:
      #   print(block)
-        if blockCodes[block] > 1:
-            cptRedondance += blockCodes[block]-1
+    #    if blockCodes[block] > 1:
+  #      cptRedondance += blockCodes[block]-1
 
-   # print(cptRedondance)
+ #   print(cptRedondance)
     ###RESULTAT
     filin.close()
