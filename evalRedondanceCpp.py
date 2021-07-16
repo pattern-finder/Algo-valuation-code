@@ -4,6 +4,10 @@ PATERN_VARIABLE = [
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s*',
     r'[A-Za-z0-9_]{1,}\s*<[A-Za-z0-9_]{1,}>\s*[A-Za-z0-9_]{1,}',
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}',
+
+    r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{0,};',
+    r'[A-Za-z0-9_]{1,}\s*<[A-Za-z0-9_]{1,}>\s*[A-Za-z0-9_]{0,};',
+    r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{0,};',
 ]
 
 
@@ -43,9 +47,12 @@ def findVariableInFuction(line):
 
         for content in x:
             listContentSplit2.append(content)
+            print(content)
             if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(content):
+                print(content)
 
                 if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
+
                         listContentSplit.append(content)
 
 
@@ -81,7 +88,7 @@ def findVariableDeclare(ligne):
     type = ""
     list = []
 
-    if "=" in ligne:
+    if True:
         i = 0
         find = False
 
@@ -137,15 +144,50 @@ def findVariableDeclare(ligne):
 
 
                         for variable in listVariableTransition:
+                            if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(type) and not set('[~!@#$%^&*()+.{}":;\']+$').intersection(variable) :
 
-                            typeVar = (type, variable)
+                                typeVar = (type, variable)
 
-                            if typeVar not in listVariable:
-                                listVariable.append(typeVar)
+                                if typeVar not in listVariable:
+                                    listVariable.append(typeVar)
 
                     k -= 1
 
+            elif ligne[i] == ";" and "=" not in ligne:
+                line=""
+                line = re.findall(r'\s{0,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,};', ligne)
+
+
+                if line != [] and "return" not in line[0]:
+                    print("line")
+                    print(line)
+                    print("line2")
+                    ligneTab = line[0].split(" ")
+
+                    u = 0
+                    type = ""
+                    var = ""
+                    while u<len(ligneTab) and line != None:
+                        if ligneTab[u] != '':
+                            if type == '':
+                                type = ligneTab[u]
+                            else:
+                                var = ligneTab[u]
+                        u +=1
+                    typeVar = (type,var)
+
+                    if typeVar not in listVariable:
+                        listVariable.append(typeVar)
+
+                    print(" ")
+                    print("line")
+                    print(ligneTab)
+                    print("line")
+
+
             i += 1
+
+
 
     return listVariable
 
@@ -293,6 +335,12 @@ def rename_variable(line, listVariableRename):
                     ###gestion de symbole ;
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,};', type+";", line)
 
+                    ###gestion de symbole .
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\.', type+".", line)
+
+                    ###gestion de symbole [
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}\[', type+"[", line)
+
                     ###gestion des symboles < >
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', type+">", line)
@@ -413,15 +461,14 @@ if __name__ == '__main__':
         if "///START" == ligne[0:8]:
             scopeCodeUser = True
 
-  #  for elt in listFunction:
- #       print(elt)
-
-
-
-   # blockCodes = find_block(lignesCompacte)
-
     blockCodesWithRenameVariable = []
     listFunctionCode = find_function(lignesCompacte)
+
+    for elt in listFunction:
+        print(elt)
+
+    print(" ")
+    print(" ")
 
     for function in listFunctionCode:
         blockCodesWithRenameVariable.append(function)
@@ -429,19 +476,19 @@ if __name__ == '__main__':
     codeRename = ""
     i=0
     for elt in blockCodesWithRenameVariable:
-
         codeRename += rename_variable(elt, listFunction[i])
         i +=1
 
-    print(codeRename)
+
+    blockCodes = find_block(codeRename)
 
     cptRedondance = 0
 
-   # for block in blockCodesWithRenameVariable:
-     #   print(block)
-    #    if blockCodes[block] > 1:
-  #      cptRedondance += blockCodes[block]-1
+    for block in blockCodes:
+        print(block)
+        if blockCodes[block] > 1:
+            cptRedondance += blockCodes[block]-1
 
- #   print(cptRedondance)
-    ###RESULTAT
+    print(cptRedondance)
+
     filin.close()
