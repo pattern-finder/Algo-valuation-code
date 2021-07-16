@@ -43,7 +43,6 @@ def findVariableInFuction(line):
 
         for content in x:
             listContentSplit2.append(content)
-
             if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(content):
 
                 if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
@@ -58,7 +57,14 @@ def findVariableInFuction(line):
         else:
             parts = varaiblePart.split(" ")
 
-        listVariable.append(parts[len(parts)-1])
+        i = 0
+        type=""
+
+        while i < len(parts) -1:
+            type = type+parts[i]
+            i +=1
+
+        listVariable.append((type, parts[len(parts)-1]))
 
 
     return listVariable
@@ -94,12 +100,12 @@ def findVariableDeclare(ligne):
 
                 while k > 0 and notFind:
 
-
                     if ligne[k] == " ":
                         permissionParcourtWord = False
 
                         if var != "":
                             listVariableTransition.append(var)
+
                             var = ""
 
                     if ligne[k] == ",":
@@ -294,52 +300,65 @@ if __name__ == '__main__':
 
     listFunction = []
     listVariableRename = []
+    lastListVariableRename = []
+
     listVarBlock = []
     filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
     scopeCodeUser = False
+    firstInsert = False
 
     lignesCompacte = ""
+    newBlock = []
 
 
     for ligne in lignes:
 
         if "///END" == ligne[0:6]:
             scopeCodeUser = False
-
-
             listFunction.append(listVariableRename)
-
+            listVariableRename= []
 
         if scopeCodeUser:
 
             ligne = ligne.replace('\n', '')
-
             listeVarInitFunction = findVariableInFuction(ligne)
-            listVarToRenameFunction = listeVarInitFunction + findVariableDeclare(ligne)
 
-            i = 0
-            while i < len(listVarToRenameFunction):
-                if listVarToRenameFunction[i] not in listVariableRename and listVarToRenameFunction[i] != "":
-                    listVariableRename.append(listVarToRenameFunction[i])
-                i += 1
 
             if listeVarInitFunction != []:
-                listFunction.append(listVarToRenameFunction)
 
-                listVarToRenameFunction = []
-            #   i = 0
-            #    for element in listVarToRenameDeclare:
-             #       if listVarToRenameDeclare[i] not in listVariableRename and listVarToRenameDeclare[i] != "":
-             #           listVariableRename.append(element)
-           #         i += 1
+                if listVariableRename != []:
 
-        #     listVarToRenameDeclare = []
+                    listFunction.append(listVariableRename)
+                    listVariableRename=[]
+                    listVarToRenameFunction = []
+                    lastListVariableRename = []
 
-           # else:
+                    i = 0
+                    while i < len(listeVarInitFunction):
+                        if listeVarInitFunction[i] not in listVariableRename and listeVarInitFunction[i] != "":
+                            listVariableRename.append(listeVarInitFunction[i])
+                        i += 1
 
-           #     listFunction.append(listVariableRename)
-           #     listVariableRename = []
+                else:
+                    listVarToRenameFunction = listeVarInitFunction
+
+                    i = 0
+                    while i < len(listVarToRenameFunction):
+                        if listVarToRenameFunction[i] not in listVariableRename and listVarToRenameFunction[i] != "":
+                            listVariableRename.append(listVarToRenameFunction[i])
+                        i += 1
+
+
+            else:
+                listVarToRenameFunction = listeVarInitFunction + findVariableDeclare(ligne)
+
+                i = 0
+                while i < len(listVarToRenameFunction):
+                    if listVarToRenameFunction[i] not in listVariableRename and listVarToRenameFunction[i] != "":
+                        listVariableRename.append(listVarToRenameFunction[i])
+                    i += 1
+
 
 
             lignesCompacte +=ligne
