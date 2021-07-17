@@ -2,7 +2,7 @@ import re
 
 PATERN_VARIABLE = [
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s*',
-    r'[A-Za-z0-9_]{1,}\s*<[A-Za-z0-9_]{1,}>\s*[A-Za-z0-9_]{1,}',
+    r'[A-Za-z0-9_]{1,}\s{0,}<[A-Za-z0-9_]{1,}>\s{0,}[A-Za-z0-9_]{1,}',
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}',
 
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{0,};',
@@ -47,9 +47,7 @@ def findVariableInFuction(line):
 
         for content in x:
             listContentSplit2.append(content)
-            print(content)
             if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(content):
-                print(content)
 
                 if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
 
@@ -58,9 +56,9 @@ def findVariableInFuction(line):
 
     for varaiblePart in listContentSplit:
 
-        if ">" in varaiblePart and " " not in varaiblePart:
+        if ">" in varaiblePart:
             parts = varaiblePart.split(">")
-
+            parts[len(parts)-2] +=">"
         else:
             parts = varaiblePart.split(" ")
 
@@ -71,7 +69,9 @@ def findVariableInFuction(line):
             type = type+parts[i]
             i +=1
 
-        listVariable.append((type, parts[len(parts)-1]))
+        type = re.sub(' ', '', type)
+        variable = re.sub(' ', '', parts[len(parts)-1])
+        listVariable.append((type, variable))
 
 
     return listVariable
@@ -145,7 +145,8 @@ def findVariableDeclare(ligne):
 
                         for variable in listVariableTransition:
                             if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(type) and not set('[~!@#$%^&*()+.{}":;\']+$').intersection(variable) :
-
+                                type = re.sub(' ', '', type)
+                                variable = re.sub(' ', '', variable)
                                 typeVar = (type, variable)
 
                                 if typeVar not in listVariable:
@@ -157,32 +158,30 @@ def findVariableDeclare(ligne):
                 line=""
                 line = re.findall(r'\s{0,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,};', ligne)
 
-
                 if line != [] and "return" not in line[0]:
-                    print("line")
-                    print(line)
-                    print("line2")
-                    ligneTab = line[0].split(" ")
+
+                    line = re.sub(';', '', line[0])
+                    ligneTab = line.split(" ")
 
                     u = 0
                     type = ""
                     var = ""
-                    while u<len(ligneTab) and line != None:
+                    while u<len(ligneTab) and line != "":
                         if ligneTab[u] != '':
                             if type == '':
                                 type = ligneTab[u]
                             else:
                                 var = ligneTab[u]
                         u +=1
+                    type = re.sub(' ', '', type)
+                    var = re.sub(' ', '', var)
+
                     typeVar = (type,var)
 
                     if typeVar not in listVariable:
                         listVariable.append(typeVar)
 
-                    print(" ")
-                    print("line")
-                    print(ligneTab)
-                    print("line")
+
 
 
             i += 1
@@ -340,6 +339,7 @@ def rename_variable(line, listVariableRename):
 
                     ###gestion de symbole [
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}\[', type+"[", line)
+                #    line = re.sub(r'=\s{0,}'+variable+r'\s{0,}\[int\]', type+"[", line)
 
                     ###gestion des symboles < >
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
@@ -359,7 +359,11 @@ def rename_variable(line, listVariableRename):
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}\)', type+")", line)
                     line = re.sub(r'\(\s{0,}'+variable+r'\s{0,},', "("+type+",", line)
                     line = re.sub(r'\(\s{0,}'+variable+r'\s{0,}\)', "("+type+")", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}!', type+"!", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', type+">", line)
 
+                    print(variable)
             i += 1
 
     return line
@@ -395,7 +399,7 @@ if __name__ == '__main__':
     lastListVariableRename = []
 
     listVarBlock = []
-    filin = open("userCode.cpp", "r")
+    filin = open("test.cpp", "r")
     lignes = filin.readlines()
 
     scopeCodeUser = False
@@ -466,7 +470,6 @@ if __name__ == '__main__':
 
     for elt in listFunction:
         print(elt)
-
     print(" ")
     print(" ")
 
