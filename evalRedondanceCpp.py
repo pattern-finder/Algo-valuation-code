@@ -47,7 +47,22 @@ def findVariableInFuction(line):
 
         for content in x:
             listContentSplit2.append(content)
-            if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(content):
+            if not set('~!@#$%^&*()+.{}":;\'+$').intersection(content):
+
+                if "[" in content:
+                    newContent = ""
+                    id=0
+                    finishExtractVarFromTable = False
+
+                    while id < len(content) and not finishExtractVarFromTable:
+                        if content[id] == "[":
+                            finishExtractVarFromTable = True
+
+                        else:
+                            newContent += content[id]
+                        id +=1
+
+                    content = newContent
 
                 if re.search(PATERN_VARIABLE[0], content) != None or re.search(PATERN_VARIABLE[1], content) != None or re.search(PATERN_VARIABLE[2], content) != None:
 
@@ -104,6 +119,7 @@ def findVariableDeclare(ligne):
                 var = ""
                 typeVar = ""
                 listVariableTransition = []
+                inTab = False
 
                 while k > 0 and notFind:
 
@@ -124,9 +140,11 @@ def findVariableDeclare(ligne):
                             listVariableTransition.append(var)
                             var = ""
 
+                    if ligne[k] == "]":
+                        inTab= True
 
                     #Si on trouve un signe arpès avoir trouvé un séparateur ou qu'on est en train de parcourir un mot
-                    if ligne[k] != "," and ligne[k] != " " and k != i:
+                    if ligne[k] != "," and ligne[k] != " " and k != i and not inTab:
 
                         if findSeparator or permissionParcourtWord:
                             findSeparator = False
@@ -135,6 +153,11 @@ def findVariableDeclare(ligne):
 
                         else:
                             notFind = False
+
+
+                    if ligne[k] == "[":
+                        inTab = False
+
 
                     if not notFind:
                         type = ""
@@ -181,12 +204,7 @@ def findVariableDeclare(ligne):
                     if typeVar not in listVariable:
                         listVariable.append(typeVar)
 
-
-
-
             i += 1
-
-
 
     return listVariable
 
@@ -339,7 +357,6 @@ def rename_variable(line, listVariableRename):
 
                     ###gestion de symbole [
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}\[', type+"[", line)
-                #    line = re.sub(r'=\s{0,}'+variable+r'\s{0,}\[int\]', type+"[", line)
 
                     ###gestion des symboles < >
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
@@ -363,7 +380,6 @@ def rename_variable(line, listVariableRename):
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', type+"<", line)
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', type+">", line)
 
-                    print(variable)
             i += 1
 
     return line
@@ -481,7 +497,6 @@ if __name__ == '__main__':
     for elt in blockCodesWithRenameVariable:
         codeRename += rename_variable(elt, listFunction[i])
         i +=1
-
 
     blockCodes = find_block(codeRename)
 
