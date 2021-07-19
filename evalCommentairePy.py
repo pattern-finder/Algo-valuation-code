@@ -42,10 +42,14 @@ if __name__ == '__main__':
     print(nbligneComment)
 
     res = ""
-    if (nbligneComment/nbligne)*100 > 10:
-        res = "ok"
+
+    if nbligne >0:
+        if (nbligneComment/nbligne)*100 >= 10:
+            res = "ok"
+        else:
+            res = "error"
     else:
-        res = "error"
+        res = "ok"
 
     print(res)
     filin.close()
