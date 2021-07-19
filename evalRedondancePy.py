@@ -98,6 +98,47 @@ def findVariableDeclare(ligne):
 
             i += 1
 
+    if " in " in ligne:
+        findIn = False
+        notFind = True
+        permissionParcourtWord = False
+
+        p = 0
+        while p < len(ligne) and notFind:
+            if len(ligne) > p + 3:
+                if ligne[p] == " ":
+                    if ligne[p+1] == "i":
+                        if ligne[p + 2] == "n":
+                            if ligne[p + 3] == " ":
+                                findIn = True
+
+            if findIn:
+                var = ""
+                m=p
+                while m > 0:
+
+                    if ligne[m] != " ":
+                        if not permissionParcourtWord:
+                            permissionParcourtWord = True
+
+                    elif permissionParcourtWord:
+                        notFind = False
+                        permissionParcourtWord = False
+
+                        if var != "" and var not in listVariable:
+                            listVariable.append(var)
+
+                    if permissionParcourtWord and notFind:
+                        var = ligne[m]+var
+
+
+
+                    m -=1
+
+            p +=1
+
+
+
     return listVariable
 
 
@@ -289,6 +330,8 @@ def rename_variable(line, listVariableRename):
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}<', espace+var+"<", line)
                     line = re.sub(r'\s{0,}'+variable+r'\s{0,}>', espace+var+">", line)
 
+                    line = re.sub(r'\s{0,}'+variable+r'\s{0,}:', espace+var+":", line)
+
             i += 1
 
     return line
@@ -364,23 +407,23 @@ if __name__ == '__main__':
             scopeCodeUser = True
 
 
-
     codeRename = ""
 
     for ligne in lignesCompacte:
         codeRename += rename_variable(ligne, listVariableRename)
 
-
-
     blockCodes = find_block(lignesCompacte)
+    renameBlock = []
+    for block in blockCodes:
+        renameBlock.append(rename_variable(block, listVariableRename))
 
-    sanitize_dict = sanitize_dict(blockCodes)
+    sanitize_dict = sanitize_dict(renameBlock)
 
 
     cptRedondance = 0
 
     for block in sanitize_dict:
-     #   print(block)
+        print(block)
         if sanitize_dict[block] > 1:
             cptRedondance += sanitize_dict[block]-1
 
