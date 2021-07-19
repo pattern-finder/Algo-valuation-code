@@ -348,7 +348,7 @@ def sanitize_dict(dict):
 
     for block in dict:
 
-        sanitizeBlock = block.replace('\n', '')
+        sanitizeBlock = block.replace('\n', ';')
         sanitizeBlock = sanitizeBlock.replace(' ', '')
         sanitize_dict = update_block(sanitizeBlock, sanitize_dict)
 
@@ -384,7 +384,7 @@ if __name__ == '__main__':
 
         if scopeCodeUser:
             ligneBis = ligne
-            ligne = ligne.replace('\n', '')
+            ligne = ligne.replace('\n', ';')
 
             listeVarInitFunction = findVariableInFuction(ligne)
             listeVarContentFunction = []

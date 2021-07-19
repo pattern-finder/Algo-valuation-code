@@ -2,61 +2,6 @@ import re
 
 
 
-def findVariableDeclare(ligne):
-    listVariable = []
-
-    if "=" in ligne:
-        i = 0
-        find = False
-
-        while i < len(ligne) and not find:
-            if ligne[i] == "=":
-
-                notFind = True
-                findSeparator = True
-                permissionParcourtWord = False
-
-                k = i
-                var = ""
-                while k > 0 and notFind:
-
-                    if ligne[k] == " ":
-                        permissionParcourtWord = False
-
-                        if var != "":
-                            listVariable.append(var)
-                            var = ""
-
-                    if ligne[k] == ",":
-
-                        findSeparator = True
-                        permissionParcourtWord = False
-
-                        if var != "":
-                            listVariable.append(var)
-                            var = ""
-
-
-                    if ligne[k] != "," and ligne[k] != " " and k != i:
-
-                        if findSeparator or permissionParcourtWord:
-                            findSeparator = False
-                            permissionParcourtWord = True
-                            var = ligne[k]+var
-
-                        else:
-                            notFind = False
-
-                    k -= 1
-
-            i += 1
-
-    return listVariable
-
-
-
-
-
 def findVariableInFuction(line):
     listVariable = []
     variable = ""
@@ -80,7 +25,7 @@ def findVariableInFuction(line):
                     if line[i] != " ":
                         variable += line[i]
 
-                else:
+                elif variable not in listVariable:
                     listVariable.append(variable)
                     variable = ""
 
@@ -94,6 +39,93 @@ def findVariableInFuction(line):
 
 
 
+def findVariableDeclare(ligne):
+    listVariable = []
+
+    if "=" in ligne:
+        i = 0
+        find = False
+
+        while i < len(ligne) and not find:
+            if ligne[i] == "=":
+
+                notFind = True
+                findSeparator = True
+                permissionParcourtWord = False
+
+                k = i
+                var = ""
+                while k > 0 and notFind:
+
+                    if ligne[k] == " ":
+                        permissionParcourtWord = False
+
+                        if var != "" and var not in listVariable:
+                            listVariable.append(var)
+                            var = ""
+
+                    if ligne[k] == ",":
+
+                        findSeparator = True
+                        permissionParcourtWord = False
+
+                        if var != "" and var not in listVariable:
+                            listVariable.append(var)
+                            var = ""
+
+
+                    if ligne[k] != "," and ligne[k] != " " and k != i:
+
+                        if findSeparator or permissionParcourtWord:
+                            findSeparator = False
+                            permissionParcourtWord = True
+                            var = ligne[k]+var
+
+                        else:
+                            notFind = False
+
+                    k -= 1
+
+            i += 1
+
+    if " in " in ligne:
+        findIn = False
+        notFind = True
+        permissionParcourtWord = False
+
+        p = 0
+        while p < len(ligne) and notFind:
+            if len(ligne) > p + 3:
+                if ligne[p] == " ":
+                    if ligne[p+1] == "i":
+                        if ligne[p + 2] == "n":
+                            if ligne[p + 3] == " ":
+                                findIn = True
+
+            if findIn:
+                var = ""
+                m=p
+                while m > 0:
+
+                    if ligne[m] != " ":
+                        if not permissionParcourtWord:
+                            permissionParcourtWord = True
+
+                    elif permissionParcourtWord:
+                        notFind = False
+                        permissionParcourtWord = False
+
+                        if var != "" and var not in listVariable:
+                            listVariable.append(var)
+
+                    if permissionParcourtWord and notFind:
+                        var = ligne[m]+var
+
+                    m -=1
+
+            p +=1
+
+    return listVariable
 
 def findVariableFromList(line):
 
@@ -175,7 +207,8 @@ if __name__ == '__main__':
             for variable in variables:
 
                 if variables != "" and variable not in listVariable:
-                    listVariable.append(variable)
+                    if not set('[<>+-*~!@#$%^&*().{}":;\']+$').intersection(variable):
+                        listVariable.append(variable)
 
 
 
@@ -185,13 +218,15 @@ if __name__ == '__main__':
             i = 0
             while i < len(functionListVariable):
                 if functionListVariable[i] not in listVariable:
-                    listVariable.append(functionListVariable[i])
+                    if not set('[<>+-*~!@#$%^&*().{}":;\']+$').intersection(functionListVariable[i]):
+                        listVariable.append(functionListVariable[i])
                 i +=1
 
             variableFromList = findVariableFromList(ligne)
 
-            if variableFromList != "":
-                listVariable.append(variableFromList)
+            if variableFromList != "" and variableFromList not in listVariable:
+                if not set('[~!@#$%^&*()+.{}":;\']+$').intersection(variableFromList):
+                    listVariable.append(variableFromList)
 
 
     error = 0
