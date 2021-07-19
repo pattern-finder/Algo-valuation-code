@@ -6,12 +6,12 @@ if __name__ == '__main__':
 
     nbligne = 0
     nbligneComment = 0
+    longComment = False
 
     for ligne in lignes:
 
         if "###END" == ligne[0:6]:
             scopeCodeUser = False
-
 
         if scopeCodeUser:
 
@@ -21,6 +21,17 @@ if __name__ == '__main__':
             if '#' in ligne:
                 nbligneComment +=1
 
+            if '"""' in ligne:
+                if ligne.count('"""') > 1:
+                    nbligneComment +=1
+                else:
+                    if longComment:
+                        longComment = False
+                    else:
+                        longComment = True
+
+            if longComment:
+                nbligneComment +=1
 
 
         if "###START" == ligne[0:8]:
