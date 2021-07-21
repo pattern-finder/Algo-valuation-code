@@ -126,7 +126,6 @@ def findVariableDeclare(ligne):
 
                         if var != "":
                             listVariableTransition.append(var)
-                            print(var)
 
                             var = ""
 
@@ -137,7 +136,6 @@ def findVariableDeclare(ligne):
 
                         if var != "":
                             listVariableTransition.append(var)
-                            print(var)
 
                             var = ""
 
@@ -153,7 +151,6 @@ def findVariableDeclare(ligne):
                             findSeparator = False
                             permissionParcourtWord = True
                             var = ligne[k]+var
-                            print(var)
 
                         else:
                             notFind = False
@@ -303,7 +300,6 @@ if __name__ == '__main__':
     for var in listVariable:
         error = error + switch(var)
 
-    print(listVariable)
 
     ###RESULTAT
     print(error)

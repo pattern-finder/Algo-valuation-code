@@ -124,6 +124,7 @@ def findVariableDeclare(ligne):
                 while k > 0 and notFind:
 
                     if ligne[k] == " ":
+
                         permissionParcourtWord = False
 
                         if var != "":
@@ -142,6 +143,12 @@ def findVariableDeclare(ligne):
 
                     if ligne[k] == "]":
                         inTab= True
+
+                    if ligne[k] == "/":
+                        if len(ligne) > k+1:
+                            if ligne[k+1] == "/" or ligne[k+1] == "*":
+
+                                notFind = False
 
                     #Si on trouve un signe arpès avoir trouvé un séparateur ou qu'on est en train de parcourir un mot
                     if ligne[k] != "," and ligne[k] != " " and k != i and not inTab:
@@ -386,6 +393,9 @@ def rename_variable(line, listVariableRename):
 
 
 
+
+
+
 def sanitize_list(liste_variable):
     """
     :param liste_variable: représente la liste des variables du code
@@ -407,6 +417,44 @@ def sanitize_list(liste_variable):
 
 
 
+def remove_comentary(lignes):
+    """
+    :param liste_variable: représente la liste des variables du code
+    :return: retourne la liste des variables après avoir ajouté un espace après le type de la variable. Permet de différencier les types Matrice et collection<Matrice>
+    """
+    long_comment = False
+    code_without_comentary = []
+
+    for ligne in lignes:
+
+        if "//" in ligne:
+            tab_line = ligne.split("//")
+            code_without_comentary.append(tab_line[0])
+
+        elif "/*" in ligne and "*/" in ligne:
+            tab_line1 = ligne.split("/*")
+            tab_line2 = ligne.split("*/")
+            new_line = tab_line1[0] + tab_line2[len(tab_line2)-1]
+            code_without_comentary.append(new_line)
+
+        elif "/*" in ligne:
+            tab_line = ligne.split("/*")
+            code_without_comentary.append(tab_line[0])
+            long_comment = True
+
+        elif "*/" in ligne:
+            tab_line = ligne.split("*/")
+            code_without_comentary.append(tab_line[len(tab_line)-1])
+            long_comment = False
+
+
+        elif not long_comment:
+            code_without_comentary.append(ligne)
+
+
+
+    return code_without_comentary
+
 
 if __name__ == '__main__':
 
@@ -415,48 +463,55 @@ if __name__ == '__main__':
     lastListVariableRename = []
 
     listVarBlock = []
-    filin = open("test.cpp", "r")
+    filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
 
     scopeCodeUser = False
     firstInsert = False
+    long_comment = False
 
     lignesCompacte = ""
     newBlock = []
     functionCode = ""
 
+    lignes = remove_comentary(lignes)
 
     for ligne in lignes:
 
-        if "///END" == ligne[0:6]:
-            scopeCodeUser = False
-            listFunction.append(listVariableRename)
-            listVariableRename= []
+        if "#include" not in ligne and "using namespace" not in ligne:
 
-        if scopeCodeUser:
+                ligne = ligne.replace('\n', '')
 
-            ligne = ligne.replace('\n', '')
+                listeVarInitFunction = findVariableInFuction(ligne)
 
-            listeVarInitFunction = findVariableInFuction(ligne)
+                if listeVarInitFunction != []:
 
-            if listeVarInitFunction != []:
+                    if listVariableRename != []:
 
-                if listVariableRename != []:
+                        listFunction.append(listVariableRename)
+                        functionCode= ""
+                        listVariableRename=[]
+                        listVarToRenameFunction = []
+                        lastListVariableRename = []
 
-                    listFunction.append(listVariableRename)
-                    functionCode= ""
-                    listVariableRename=[]
-                    listVarToRenameFunction = []
-                    lastListVariableRename = []
+                        i = 0
+                        while i < len(listeVarInitFunction):
+                            if listeVarInitFunction[i] not in listVariableRename and listeVarInitFunction[i] != "":
+                                listVariableRename.append(listeVarInitFunction[i])
+                            i += 1
 
-                    i = 0
-                    while i < len(listeVarInitFunction):
-                        if listeVarInitFunction[i] not in listVariableRename and listeVarInitFunction[i] != "":
-                            listVariableRename.append(listeVarInitFunction[i])
-                        i += 1
+                    else:
+                        listVarToRenameFunction = listeVarInitFunction
+
+                        i = 0
+                        while i < len(listVarToRenameFunction):
+                            if listVarToRenameFunction[i] not in listVariableRename and listVarToRenameFunction[i] != "":
+                                listVariableRename.append(listVarToRenameFunction[i])
+                            i += 1
+
 
                 else:
-                    listVarToRenameFunction = listeVarInitFunction
+                    listVarToRenameFunction = listeVarInitFunction + findVariableDeclare(ligne)
 
                     i = 0
                     while i < len(listVarToRenameFunction):
@@ -465,21 +520,10 @@ if __name__ == '__main__':
                         i += 1
 
 
-            else:
-                listVarToRenameFunction = listeVarInitFunction + findVariableDeclare(ligne)
 
-                i = 0
-                while i < len(listVarToRenameFunction):
-                    if listVarToRenameFunction[i] not in listVariableRename and listVarToRenameFunction[i] != "":
-                        listVariableRename.append(listVarToRenameFunction[i])
-                    i += 1
+                lignesCompacte +=ligne
 
-
-
-            lignesCompacte +=ligne
-
-        if "///START" == ligne[0:8]:
-            scopeCodeUser = True
+    listFunction.append(listVariableRename)
 
     blockCodesWithRenameVariable = []
     listFunctionCode = find_function(lignesCompacte)
