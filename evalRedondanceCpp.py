@@ -528,10 +528,6 @@ if __name__ == '__main__':
     blockCodesWithRenameVariable = []
     listFunctionCode = find_function(lignesCompacte)
 
-    for elt in listFunction:
-        print(elt)
-    print(" ")
-    print(" ")
 
     for function in listFunctionCode:
         blockCodesWithRenameVariable.append(function)
@@ -547,7 +543,6 @@ if __name__ == '__main__':
     cptRedondance = 0
 
     for block in blockCodes:
-        print(block)
         if blockCodes[block] > 1:
             cptRedondance += blockCodes[block]-1
 
