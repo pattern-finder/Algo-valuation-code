@@ -217,17 +217,52 @@ def findVariableDeclare(ligne):
 def switch(variable):
     switcher = {
         len(variable) == 1: 1,              #teste si une varaible contient plus d'une lettre
-        re.search(r'[A-Z]', variable[0]) != None and re.search(r'[A-Z]{'+str(len(variable))+',}', variable) == None : 1,  #teste si une varaible commence par une majuscule et que cette variable n'est pas une constante
+        re.search(r'[A-Z]', variable[0]) != None and re.search(r'[A-Z]{'+str(len(variable))+',}', variable) == None : 1,  #teste si une varaible commence par une majuscule t que cette variable n'est pas unee constante
+        variable.lower() != variable and re.search(r'[A-Z]{' + str(len(variable)) + ',}', variable) == None: 1,
+
     }
 
 
     return switcher.get(True, 0)
 
 
+def remove_comentary(lignes):
+    """
+    :param liste_variable: représente la liste des variables du code
+    :return: retourne la liste des variables après avoir ajouté un espace après le type de la variable. Permet de différencier les types Matrice et collection<Matrice>
+    """
+    long_comment = False
+    code_without_comentary = []
+
+    for ligne in lignes:
+
+        if "//" in ligne:
+            tab_line = ligne.split("//")
+            code_without_comentary.append(tab_line[0])
+
+        elif "/*" in ligne:
+            tab_line = ligne.split("/*")
+            code_without_comentary.append(tab_line[0])
+            long_comment = True
+
+        elif "*/" in ligne:
+            tab_line = ligne.split("*/")
+            code_without_comentary.append(tab_line[len(tab_line)-1])
+            long_comment = False
+
+
+        elif not long_comment:
+            code_without_comentary.append(ligne)
+
+
+
+    return code_without_comentary
+
+
 
 if __name__ == '__main__':
 
-    filin = open("test.cpp", "r")
+    filin = open("userCode.cpp", "r")
     lignes = filin.readlines()
     scopeCodeUser = False
     cpt = 0
@@ -236,14 +271,10 @@ if __name__ == '__main__':
 
     lignesCompacte = ""
     listVariable = []
+    lignes = remove_comentary(lignes)
 
     for ligne in lignes:
 
-
-        if "///END" == ligne[0:6]:
-            scopeCodeUser = False
-
-        if scopeCodeUser:
             ligne = ligne.replace('\n', '')
 
             variable = ""
@@ -267,8 +298,6 @@ if __name__ == '__main__':
 
             lignesCompacte +=ligne
 
-        if "///START" == ligne[0:8]:
-            scopeCodeUser = True
 
     error = 0
     for var in listVariable:
