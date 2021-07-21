@@ -223,6 +223,7 @@ def switch(variable):
     return switcher.get(True, 0)
 
 
+
 def remove_comentary(lignes):
     """
     :param liste_variable: représente la liste des variables du code
@@ -237,6 +238,12 @@ def remove_comentary(lignes):
             tab_line = ligne.split("//")
             code_without_comentary.append(tab_line[0])
 
+        elif "/*" in ligne and "*/" in ligne:
+            tab_line1 = ligne.split("/*")
+            tab_line2 = ligne.split("*/")
+            new_line = tab_line1[0] + tab_line2[len(tab_line2)-1]
+            code_without_comentary.append(new_line)
+
         elif "/*" in ligne:
             tab_line = ligne.split("/*")
             code_without_comentary.append(tab_line[0])
@@ -247,14 +254,10 @@ def remove_comentary(lignes):
             code_without_comentary.append(tab_line[len(tab_line)-1])
             long_comment = False
 
-
         elif not long_comment:
             code_without_comentary.append(ligne)
 
-
-
     return code_without_comentary
-
 
 
 if __name__ == '__main__':
