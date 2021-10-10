@@ -47,6 +47,7 @@ def testAlgo(nameExercice, resultat, nbMatriceResult):
 #
 #
 #Donnée: Image a trouver => matrice_result
+
 #        Liste d'images a traiter => listMatrice
 
 #Réponse: vous devez retourner l'id de limage dans la liste (0, 1, 2 ...) correspondant à l'image d'entrée
@@ -54,17 +55,21 @@ def testAlgo(nameExercice, resultat, nbMatriceResult):
 
 ### Algo crée par l'utilisateur
 
-###START
-def doExercice(listMatrice, matriceInputToFind):
+
+def doExercice(listMatrice, matriceInputToFind, test):
     currentId = 0
     solutionId = -1
+    test[3]=1
     CO = 0
-
-    for matrice in listMatrice:
-        ligneInputPattern = 0
+    """   
+    
+    
+    """
+#fhgfh
+    for matrice in listMatrice:#
+        ligneInputPattern = 5
 
         equal = True
-        print("")
         matrice.toStringPixel()
 
         for lignePixel in matrice.getMatriceContent():
@@ -72,8 +77,12 @@ def doExercice(listMatrice, matriceInputToFind):
 
             for pixel in lignePixel:
 
-                if not compatrePixel(colonneInputPattern, ligneInputPattern, matrice, matriceInputToFind):
+                if not comparePixel(colonneInputPattern, ligneInputPattern, matrice, matriceInputToFind):
                     equal = False
+
+                    if equal:
+                        solutionId = currentId
+
 
                 colonneInputPattern = colonneInputPattern +1
 
@@ -83,22 +92,22 @@ def doExercice(listMatrice, matriceInputToFind):
             solutionId = currentId
 
         currentId = currentId + 1
-
+    ox = 100
+    o
     return solutionId
 
+def testAlgo():
+    exercice = Exercice(resultat, nameExercice)
 
-def compatrePixel(x, y, matriceSource, matriceCible):
+    return exercice
+
+def comparePixel(x, y, matriceSource, matriceCible):
     return matriceSource.getPixel(x, y).compare(matriceCible.getPixel(x, y))
-###END
 
 ### FIN  Algo crée par l'utilisateur
-
-
-
 
 if __name__ == '__main__':
     nameExercice = "comparaisonMatrice"
     resultat = 2
-    nbMatriceResult = 1
-    print(testAlgo(nameExercice, resultat, nbMatriceResult))
+  #  print(testAlgo(nameExercice, resultat, nbMatriceResult))
 

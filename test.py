@@ -45,7 +45,7 @@ def testAlgo(nameExercice, resultat, nbMatriceResult):
 ### Algo crée par l'utilisateur
 
 
-
+###START
 def doExercice(listPattern, size_matrice, resultat_utilisateur):
 
     idImage = 0
@@ -354,7 +354,7 @@ def pixelIsNull(x, y, matriceSource):
 
     return not matriceSource.getPixel(x, y).compare(pixelNone)
 
-
+###END
 
 
 

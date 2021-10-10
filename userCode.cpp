@@ -1,5 +1,6 @@
+///START
 
-#include <stdio.h> 
+#include <stdio.h>
 #include <opencv2/highgui.hpp>
 #include <string>
 #include <iostream>
@@ -11,9 +12,9 @@
 
 using namespace std;
 
-///START
-int doExercice(vector<Matrice> listPattern, Matrice result){
-    int currentId = 0;
+
+int doExercice(vector<Matrice> listPattern, Matrice result, int cv[3]){
+    int currentId[3] = ;
     int x = 0;
     int y = 0;
     int CO = 0;
@@ -24,7 +25,11 @@ int doExercice(vector<Matrice> listPattern, Matrice result){
     for(unsigned int i = 0; i < listPattern.size(); i++){
         x = 0;
         y = 0;
+/*
 
+
+
+*/
         bool equaL = true;
         Matrice matrice = listPattern[i];
         while( y < result.getSize() && equaL){
@@ -40,12 +45,12 @@ int doExercice(vector<Matrice> listPattern, Matrice result){
             }
             x=0;
             y++;
-           
+           //
             }
 
              if(equaL){
                 return currentId;
-            }else{
+            }else{//
                 currentId++;
         }
 
@@ -53,12 +58,27 @@ int doExercice(vector<Matrice> listPattern, Matrice result){
     return -1;
 }
 
-///END
+
+int test(vector<Matrice> aaa, Matrice bh){
+    float aty = 1;
+    int ooo = 0;
+
+}
+
+int test(vector<hjgh> aaa, Matrice hhh){
+    float aty = 1;
+    int ooo = 0;
+    int dx;
+    if (dx!=0){
+
+    }
+}
+
 
 
 
 std::string testAlgo(std::string nameExercice, int resultat, int nbMatriceResult){
-
+    int tesTest =0;
     Opencv opencv = Opencv(nameExercice);
     opencv.setNumberImageResultat(nbMatriceResult);
     opencv.getNumberImage();
@@ -82,9 +102,42 @@ std::string testAlgo(std::string nameExercice, int resultat, int nbMatriceResult
 
 int main(int argc, char *argv[])
 {
-    std::string nameExercice = "comparaisonMatrice";
-    int resultat = 2;
-    int nbMatriceResult = 1;
+    //sdfsfsf
+dqsdfqs
+unionu
+defaultd
+defaultd
+fsdfs
+int d;
+wcwxc
+bibliothequeCppq
+e
+cwx
+int z;
+z
+s
+a
+s
+s
 
-    cout << testAlgo(nameExercice, resultat, nbMatriceResult) << endl;
+
+
+
+
+
+
+a
+s
+s
+s
+a
+s
+a
+z
+z
+z
+w
+x
+c
 }
+///END
