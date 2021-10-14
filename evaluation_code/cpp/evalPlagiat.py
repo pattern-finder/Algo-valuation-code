@@ -12,6 +12,161 @@ PATERN_VARIABLE = [
 
 
 
+
+
+
+dico_stemming = {
+    "def": "d",
+    "while": "w",
+    "for": "f",
+    "elif": "ei",
+    "else": "e",
+    "<=": "c",
+    ">=": "c",
+    "<": "c",
+    ">": "c",
+    "!=": "!",
+    "==": "-",
+    "and": "&",
+    "or": "|",
+    "int": "i",
+    "bool": "bo",
+    "string": "s",
+    "long ": "l",
+    "char":"ch",
+    "float ": "fl",
+    "void": "v",
+    "double":"db",
+    "break":"b",
+    "case":"cs",
+    "try":"t",
+    "catch":"ct",
+    "class":"cl",
+    "continue":"cn",
+    "default":"df",
+    "const": "cst",
+    "delete": "dl" ,
+    "enum":"en",
+    "private":"pri",
+    "protected":"pro",
+    "public":"pub",
+    "extern": "ex",
+    "friend": "fr",
+    "goto": "got",
+    "inline": "inl",
+    "new": "nw",
+    "operator": "op",
+    "register": "rg",
+    "return": "rt",
+    "short": "sh",
+    "signed": "sg",
+    "sizeof": "sz",
+    "static": "stc",
+    "struct": "str",
+    "switch": "sw",
+    "typedef": "td",
+    "template": "tmp",
+    "throw": "th",
+    "union": "un",
+    "unsigned": "uns",
+    "virtual": "vr",
+    "volatile": "vl",
+
+    "alignas": "ag",
+    "alignof": "agn",
+    "and_eq": "&e",
+    "auto": "au",
+    "bitand": "btd",
+    "bitor": "bt",
+    "char16_t": "c16",
+    "char32_t": "c32",
+
+    "constexpr": "cx",
+    "decltype": "dt",
+    "const_cast": "ca",
+    "export": "ep",
+    "thread_local": "tl",
+    "static_assert": "ss",
+    "reinterpret_cast": "ra",
+    "this": "ti",
+    "mutable": "mt",
+    "xor_eq": "xe",
+    "using,": "us",
+    "noexcept, ": "nx",
+    "not": "n",
+    "not_eq": "!p",
+    "nullptr": "nr",
+    "or_eq": "|p",
+    "true": "tr",
+    "false": "fs",
+    "typeid": "tp",
+    "xor": "xr",
+
+}
+
+
+dico_supression = {
+    " ": "",
+    "{": "",
+    "}": "",
+    "(": "",
+    ")": "",
+    ";": "",
+    ":": ""
+}
+
+
+def delete_string(ligne):
+    delete = False
+    list_chain_to_remove = []
+
+    if ligne.count("\"") > 0:
+
+        i = 0
+        chain_to_remove = ""
+
+        while i < len(ligne):
+
+            if ligne[i] == '\"':
+                list_chain_to_remove.append(chain_to_remove)
+                chain_to_remove = ""
+                delete = not delete
+
+            if delete and ligne[i] != '"':
+                chain_to_remove = chain_to_remove + ligne[i]
+
+            i += 1
+
+    for chain in list_chain_to_remove:
+        ligne = ligne.replace(chain, "")
+
+    ligne = ligne.replace("\"\"", "\"")
+
+    return ligne
+
+
+def replace_by_new_content(ligne):
+    for key in dico_stemming:
+        ligne = ligne.replace(key, dico_stemming[key])
+    return ligne
+
+
+def delete_unuse_content(ligne):
+    for key in dico_supression:
+        ligne = ligne.replace(key, dico_supression[key])
+
+    return ligne
+
+
+def sanitize_content(ligne):
+    filtered_content = ""
+    ligne = delete_string(ligne)
+    filtered_content = filtered_content + (replace_by_new_content(ligne))
+    filtered_content = delete_unuse_content(filtered_content)
+    return filtered_content
+
+
+
 def findVariableInFuction(line):
     listVariable = []
     cpt = 0
@@ -90,7 +245,6 @@ def findVariableInFuction(line):
 
 
     return listVariable
-
 
 
 def findVariableDeclare(ligne):
@@ -235,7 +389,7 @@ def find_block(line):
     :return retourne les différents blocks représentant ce code (fonction while for if ..)
     """
 
-    blockCodes = {}
+    blockCodes = []
     i = 0
     cptAcollade = 0
     newBlock=""
@@ -262,7 +416,8 @@ def find_block(line):
                 newBlock += line[k]
 
             if cptAcollade == 0:
-                blockCodes = update_block(newBlock, blockCodes)
+                sanitize_code = sanitize_content(newBlock)
+                blockCodes.append(sanitize_code)
                 newBlock = ""
             k +=1
 
@@ -456,7 +611,7 @@ def remove_comentary(lignes):
     return code_without_comentary
 
 
-def excecEvalRedondance(code):
+def excecEvalPlagiat(code):
 
     listFunction = []
     listVariableRename = []
@@ -539,11 +694,5 @@ def excecEvalRedondance(code):
 
     blockCodes = find_block(codeRename)
 
-    cptRedondance = 0
-
-    for block in blockCodes:
-        if blockCodes[block] > 1:
-            cptRedondance += blockCodes[block]-1
-
-    return cptRedondance
+    return blockCodes
 

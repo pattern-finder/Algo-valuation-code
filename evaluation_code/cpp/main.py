@@ -1,8 +1,8 @@
 
-from evalNbLigneFonctionCpp import excecEvalNbLigneFonction
-from evalCommentaireCpp import excecEvalCommentaire
-from evalRedondanceCpp import excecEvalRedondance
-from evalVariableNameCpp import excecEvalVariableName
+from evalNbLigneFonction import excecEvalNbLigneFonction
+from evalCommentaire import excecEvalCommentaire
+from evalRedondance import excecEvalRedondance
+from evalVariableName import excecEvalVariableName
 
 
 

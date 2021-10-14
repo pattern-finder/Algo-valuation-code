@@ -1,5 +1,7 @@
 import re
 
+
+
 PATERN_VARIABLE = [
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s*',
     r'[A-Za-z0-9_]{1,}\s{0,}<[A-Za-z0-9_]{1,}>\s{0,}[A-Za-z0-9_]{1,}',
@@ -9,6 +11,127 @@ PATERN_VARIABLE = [
     r'[A-Za-z0-9_]{1,}\s*<[A-Za-z0-9_]{1,}>\s*[A-Za-z0-9_]{0,};',
     r'[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{1,}\s{1,}[A-Za-z0-9_]{0,};',
 ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dico_stemming = {
+    "def": "d",
+    "while": "w",
+    "for": "f",
+    "if": "i",
+    "elif": "ei",
+    "else": "e",
+    "<=": "c",
+    ">=": "c",
+    "<": "c",
+    ">": "c",
+    "def": "d",
+    "!=": "!",
+    "==": "-",
+    "and": "&",
+    "or": "|",
+    "var": "v",
+    "del": "d",
+    "from": "w",
+    "not": "n",
+    "while": "w",
+    "assert": "as",
+    "global": "gl",
+    "as": "as",
+    "break": "bk",
+    "continue": "ct",
+    "lambda": "lb",
+    "try": "t",
+    "with": "wh",
+    "except": "ex",
+    "pass": "ps",
+    "yield": "y",
+    "import": "ip",
+    "finally": "fn",
+    "class": "cl",
+    "raise": "rs",
+    "exec": "ex",
+    "is": "is",
+    "in": "in",
+    "print": "",
+    "True": "tr",
+    "False": "fl",
+}
+
+dico_supression = {
+    " ": "",
+    "{": "",
+    "}": "",
+    "(": "",
+    ")": "",
+    ";": "",
+    ":": ""
+
+}
+
+
+def delete_string(ligne):
+    delete = False
+    list_chain_to_remove = []
+
+    if ligne.count("\"") > 0:
+
+        i = 0
+        chain_to_remove = ""
+
+        while i < len(ligne):
+
+            if ligne[i] == '\"':
+                list_chain_to_remove.append(chain_to_remove)
+                chain_to_remove = ""
+                delete = not delete
+
+            if delete and ligne[i] != '"':
+                chain_to_remove = chain_to_remove + ligne[i]
+
+            i += 1
+
+    for chain in list_chain_to_remove:
+        ligne = ligne.replace(chain, "")
+
+    ligne = ligne.replace("\"\"", "\"")
+
+    return ligne
+
+
+def replace_by_new_content(ligne):
+    for key in dico_stemming:
+        ligne = ligne.replace(key, dico_stemming[key])
+
+    return ligne
+
+
+def delete_unuse_content(ligne):
+    for key in dico_supression:
+        ligne = ligne.replace(key, dico_supression[key])
+
+    return ligne
+
+
+def sanitize_content(ligne):
+    filtered_content = ""
+
+    ligne = delete_string(ligne)
+    filtered_content = filtered_content + (replace_by_new_content(ligne))
+    filtered_content = delete_unuse_content(filtered_content)
+
+    return filtered_content
 
 
 
@@ -208,7 +331,6 @@ def find_block(code):
                 blockCreate = False
                 blockCodes = ""
                 save = find_indentation(line)
-              #  print("START")
 
                 while not blockCreate and k < len(code):
 
@@ -216,10 +338,6 @@ def find_block(code):
                     sanitize_line = sanitize_line.replace("\n", "")
 
                     if len(sanitize_line) > 0:
-                    #    print(code[k])
-                  #      print(len(sanitize_line))
-
-                 #       print("next")
 
                         linebis = code[k]
                         newVal = find_indentation(linebis)
@@ -370,9 +488,9 @@ def sanitize_dict_(dict):
     sanitize_dict = {}
 
     for block in dict:
-      #  print(block)
-        sanitizeBlock = block.replace('\n', ';@;')
-        sanitizeBlock = sanitizeBlock.replace(' ', '')
+        sanitizeBlock = sanitize_content(block)
+
+
         sanitize_dict = update_block(sanitizeBlock, sanitize_dict)
 
     return sanitize_dict
@@ -439,7 +557,7 @@ def excecEvalRedondance(code):
 
     for ligne in lignes:
 
-            if not line_is_comment(ligne):
+        if not line_is_comment(ligne):
                 ligneBis = ligne
 
                 listeVarInitFunction = findVariableInFuction(ligne)
@@ -469,17 +587,18 @@ def excecEvalRedondance(code):
         renameBlock.append(rename_variable(block, listVariableRename))
 
 
-    sanitize_dict = sanitize_dict_(renameBlock)
+
+    sanitize_code_dict = sanitize_dict_(renameBlock)
 
 
     cptRedondance = 0
 
-    for block in sanitize_dict:
-        print(block)
+    for block in sanitize_code_dict:
 
-
-        if sanitize_dict[block] > 1:
-            cptRedondance += sanitize_dict[block]-1
+        if sanitize_code_dict[block] > 1:
+            cptRedondance += sanitize_code_dict[block]-1
 
     return cptRedondance
+
+
 

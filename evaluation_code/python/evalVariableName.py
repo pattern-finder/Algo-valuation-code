@@ -154,7 +154,7 @@ def findVariableFromList(line):
                         findSpace = False
                         variable = ""
 
-                    variable += ligne[i]
+                    variable += line[i]
 
                 else:
                     findSpace = True
@@ -217,7 +217,7 @@ def remove_comentary(lignes):
 
 
 
-def excecEvalVariableNamePython(code):
+def excecEvalVariableName(code):
 
     lignes = code.split("\n")
     scopeCodeUser = False
