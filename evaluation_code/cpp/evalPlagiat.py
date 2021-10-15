@@ -159,10 +159,11 @@ def delete_unuse_content(ligne):
 
 
 def sanitize_content(ligne):
-    filtered_content = ""
     ligne = delete_string(ligne)
-    filtered_content = filtered_content + (replace_by_new_content(ligne))
+    filtered_content =replace_by_new_content(ligne)
     filtered_content = delete_unuse_content(filtered_content)
+    filtered_content = re.sub('[0-9]{1,}', '*', filtered_content)
+
     return filtered_content
 
 
@@ -417,7 +418,8 @@ def find_block(line):
 
             if cptAcollade == 0:
                 sanitize_code = sanitize_content(newBlock)
-                blockCodes.append(sanitize_code)
+                if len(sanitize_code) > 75:
+                    blockCodes.append(sanitize_code)
                 newBlock = ""
             k +=1
 

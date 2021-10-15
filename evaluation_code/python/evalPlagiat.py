@@ -489,7 +489,10 @@ def sanitize_dict_(dict):
 
     for block in dict:
         sanitizeBlock = sanitize_content(block)
-        sanitize_dict.append(sanitizeBlock)
+        sanitizeBlock = re.sub('[0-9]{1,}', '*', sanitizeBlock)
+
+        if len(sanitizeBlock) > 75:
+            sanitize_dict.append(sanitizeBlock)
 
     return sanitize_dict
 
