@@ -327,6 +327,7 @@ def find_block(code):
 
                 k=i
 
+
                 blockCreate = False
                 blockCodes = ""
                 save = find_indentation(line)
@@ -380,7 +381,6 @@ def find_function(line):
     addAblock = False
 
     while i < len(line):
-
         if len(line)>i+4:
             if line[i] == "d":
                 if line[i+1] == "e":
@@ -535,7 +535,7 @@ def remove_comentary(lignes):
     return code_without_comentary
 
 
-def excecEvalRedondance(code):
+def excecGetTokenizeCode(code, all_code):
 
     listFunction = []
     listVariableRename = []
@@ -577,26 +577,35 @@ def excecEvalRedondance(code):
                 lignesCompacte.append(ligneBis)
 
 
-    blockCodes = find_block(lignesCompacte)
 
 
-    renameBlock = []
-    for block in blockCodes:
-        renameBlock.append(rename_variable(block, listVariableRename))
+    sanitize_code = []
+    line = ""
 
+    for l in lignesCompacte:
+        line=line+l
 
+    list_function = code.split("def ")
 
-    sanitize_code_dict = sanitize_dict_(renameBlock)
+    vall_code=""
 
+    if not all_code:
 
-    cptRedondance = 0
+        for function in list_function:
+            if function != "":
+                function = function.replace("\n", "")
+                sn = sanitize_content("def"+function)
+                sanitize_code.append(sn)
+    else:
+        for function in list_function:
+            if function != "":
+                function = function.replace("\n", "")
+                sn = sanitize_content("def"+function)
+                vall_code = vall_code + sn
 
-    for block in sanitize_code_dict:
-        if sanitize_code_dict[block] > 1:
-            cptRedondance += sanitize_code_dict[block]-1
+        sanitize_code.append(vall_code)
 
-    return cptRedondance
-
+    return sanitize_code
 
 
 
@@ -623,8 +632,5 @@ if __name__ == '__main__':
     "        currentId = currentId + 1\n"\
     "    return solutionId\n"\
     "def compatrePixel(x, y, matriceSource, matriceCible):\n"\
-    "    return matriceSource.getPixel(x, y).compare(matriceCible.getPixel(x, y))\n"\
-    "def compatrePixel(x, y, matriceSource, matriceCible):\n"\
     "    return matriceSource.getPixel(x, y).compare(matriceCible.getPixel(x, y))"
-
-    print(excecEvalRedondance(code))
+    print(excecGetTokenizeCode(code, False))

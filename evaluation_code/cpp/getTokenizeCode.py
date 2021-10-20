@@ -159,11 +159,10 @@ def delete_unuse_content(ligne):
 
 
 def sanitize_content(ligne):
+    filtered_content = ""
     ligne = delete_string(ligne)
-    filtered_content =replace_by_new_content(ligne)
+    filtered_content = filtered_content + (replace_by_new_content(ligne))
     filtered_content = delete_unuse_content(filtered_content)
-    filtered_content = re.sub('[0-9]{1,}', '*', filtered_content)
-
     return filtered_content
 
 
@@ -390,7 +389,7 @@ def find_block(line):
     :return retourne les différents blocks représentant ce code (fonction while for if ..)
     """
 
-    blockCodes = []
+    blockCodes = {}
     i = 0
     cptAcollade = 0
     newBlock=""
@@ -418,8 +417,7 @@ def find_block(line):
 
             if cptAcollade == 0:
                 sanitize_code = sanitize_content(newBlock)
-                if len(sanitize_code) > 75:
-                    blockCodes.append(sanitize_code)
+                blockCodes = update_block(sanitize_code, blockCodes)
                 newBlock = ""
             k +=1
 
@@ -463,7 +461,6 @@ def find_function(line):
                 newBlock += line[i]
 
             if cptAcollade == 0:
-
                 blockCodes.append(newBlock)
                 newBlock = ""
             i +=1
@@ -613,7 +610,7 @@ def remove_comentary(lignes):
     return code_without_comentary
 
 
-def excecEvalPlagiat(code):
+def excecGetTokenizeCode(code, all_code):
 
     listFunction = []
     listVariableRename = []
@@ -680,21 +677,37 @@ def excecEvalPlagiat(code):
                 lignesCompacte +=ligne
 
     listFunction.append(listVariableRename)
-
-    blockCodesWithRenameVariable = []
     listFunctionCode = find_function(lignesCompacte)
 
+    sanitize_code = []
 
-    for function in listFunctionCode:
-        blockCodesWithRenameVariable.append(function)
 
-    codeRename = ""
-    i=0
-    for elt in blockCodesWithRenameVariable:
-        codeRename += rename_variable(elt, listFunction[i])
-        i +=1
+    if not all_code:
+        for function in listFunctionCode:
+            sanitize_code.append(sanitize_content(function))
 
-    blockCodes = find_block(codeRename)
+    else:
+        sanitize_code.append(sanitize_content(lignesCompacte))
 
-    return blockCodes
+    return sanitize_code
+if __name__ == '__main__':
 
+
+
+    codecpp="int doExercice(vector<Matrice>listPattern, vector<Pixel> listPosStart,vector<Pixel> listPosEnd ,int size_matrice){\n"\
+    "int idSolution=0;\n"\
+    "for(unsigned int i = 0; i < listPattern.size(); i++){\n"\
+    "    cout << listPattern.size() << endl;\n"\
+    "    Matrice pattern = listPattern[i];\n"\
+    "    Pixel pixelStart = listPosStart[i];\n"\
+    "    Pixel pixelStop = listPosEnd[i];\n"\
+    "    bool res = testLine(pixelStart.getX(), pixelStart.getY(), pixelStop.getX(), pixelStop.getY(), pattern);\n"\
+    "    if (res){\n"\
+    "        return idSolution;\n"\
+    "    }\n"\
+    "   idSolution++;\n"\
+    "}\n" \
+    "return -1;\n"\
+    "}"
+
+    print(excecGetTokenizeCode(codecpp, True))
