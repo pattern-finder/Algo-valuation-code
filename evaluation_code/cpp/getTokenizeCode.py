@@ -676,8 +676,25 @@ def excecGetTokenizeCode(code, all_code):
 
                 lignesCompacte +=ligne
 
+
     listFunction.append(listVariableRename)
+
+    blockCodesWithRenameVariable = []
     listFunctionCode = find_function(lignesCompacte)
+
+
+    for function in listFunctionCode:
+        blockCodesWithRenameVariable.append(function)
+
+    codeRename = ""
+    i=0
+    for elt in blockCodesWithRenameVariable:
+        codeRename += rename_variable(elt, listFunction[i])
+        i +=1
+
+
+
+    listFunctionCode = find_function(codeRename)
 
     sanitize_code = []
 
@@ -690,24 +707,3 @@ def excecGetTokenizeCode(code, all_code):
         sanitize_code.append(sanitize_content(lignesCompacte))
 
     return sanitize_code
-if __name__ == '__main__':
-
-
-
-    codecpp="int doExercice(vector<Matrice>listPattern, vector<Pixel> listPosStart,vector<Pixel> listPosEnd ,int size_matrice){\n"\
-    "int idSolution=0;\n"\
-    "for(unsigned int i = 0; i < listPattern.size(); i++){\n"\
-    "    cout << listPattern.size() << endl;\n"\
-    "    Matrice pattern = listPattern[i];\n"\
-    "    Pixel pixelStart = listPosStart[i];\n"\
-    "    Pixel pixelStop = listPosEnd[i];\n"\
-    "    bool res = testLine(pixelStart.getX(), pixelStart.getY(), pixelStop.getX(), pixelStop.getY(), pattern);\n"\
-    "    if (res){\n"\
-    "        return idSolution;\n"\
-    "    }\n"\
-    "   idSolution++;\n"\
-    "}\n" \
-    "return -1;\n"\
-    "}"
-
-    print(excecGetTokenizeCode(codecpp, True))

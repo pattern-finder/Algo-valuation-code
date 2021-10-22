@@ -2,9 +2,9 @@
 from evaluation_code.python.evalNbLigneFonction import excecEvalNbLigneFonction
 from evaluation_code.python.evalCommentaire import excecEvalCommentaire
 from evaluation_code.python.evalRedondance import excecEvalRedondance
-from evaluation_code.cpp.evalRedondance import excecEvalRedondance
+#from evaluation_code.cpp.evalRedondance import excecEvalRedondance
 #from evaluation_code.cpp.evalPlagiat import excecEvalPlagiat
-from evaluation_code.cpp.getTokenizeCode import excecGetTokenizeCode
+from evaluation_code.python.getTokenizeCode import excecGetTokenizeCode
 from evaluation_code.python.evalPlagiat import excecEvalPlagiat
 from evaluation_code.python.evalVariableName import excecEvalVariableName
 
@@ -70,9 +70,9 @@ if __name__ == '__main__':
 
     payload = {
    #     "eval variable name":excecEvalVariableNamePython(code),
-    #    "eval redondance": excecEvalRedondance(codecpp),
-  #    "eval plagiat": excecGetTokenizeCode(codecpp, False),
-         "eval plagiat": excecEvalPlagiat(codepattern, user_pattern),
+     #   "eval redondance": excecEvalRedondance(code),
+      "eval plagiat": excecGetTokenizeCode(code, False),
+   #      "eval plagiat": excecEvalPlagiat(codepattern, user_pattern),
 
         #    "eval nb ligne fonction": excecEvalNbLigneFonctionPy(code),
     #    "eval commentaire": excecEvalCommentaire(code)

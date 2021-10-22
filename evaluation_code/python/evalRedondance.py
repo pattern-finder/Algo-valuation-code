@@ -585,7 +585,6 @@ def excecEvalRedondance(code):
         renameBlock.append(rename_variable(block, listVariableRename))
 
 
-
     sanitize_code_dict = sanitize_dict_(renameBlock)
 
 

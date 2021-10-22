@@ -389,6 +389,7 @@ def find_function(line):
 
                             if newBlock != "":
                                 blockCodes.append(newBlock)
+
                                 newBlock=""
 
         newBlock += line[i]
@@ -580,12 +581,17 @@ def excecGetTokenizeCode(code, all_code):
 
 
     sanitize_code = []
-    line = ""
 
-    for l in lignesCompacte:
-        line=line+l
+    listFunction.append(listVariableRename)
 
-    list_function = code.split("def ")
+    listFunctionCode = find_function(lignesCompacte)
+
+
+    renameCode = rename_variable(code, listVariableRename)
+
+
+
+    list_function = renameCode.split("def ")
 
     vall_code=""
 
@@ -606,31 +612,3 @@ def excecGetTokenizeCode(code, all_code):
         sanitize_code.append(vall_code)
 
     return sanitize_code
-
-
-
-if __name__ == '__main__':
-
-    code="def doExercice(listMatrice, matriceInputToFind): \n"\
-    "    currentId = 0\n"\
-    "    solutionId = -1\n"\
-    "    for matrice in listMatrice:\n"\
-    "        ligneInputPattern = 0\n"\
-    "        equal = True\n"\
-    "        print("")\n"\
-    "        matrice.toStringPixel()\n"\
-    "        for lignePixel in matrice.getMatriceContent():\n"\
-    "            colonneInputPattern = 0\n"\
-    "            for pixel in lignePixel:\n"\
-    "                if not compatrePixel(colonneInputPattern, ligneInputPattern, matrice, matriceInputToFind):\n"\
-    "                    equal = False\n"\
-    "                colonneInputPattern = colonneInputPattern +1\n"\
-    "            ligneInputPattern = ligneInputPattern +1\n"\
-    "        if equal :\n"\
-    "            solutionId = currentId\n"\
-    "            AAA = 5\n"\
-    "        currentId = currentId + 1\n"\
-    "    return solutionId\n"\
-    "def compatrePixel(x, y, matriceSource, matriceCible):\n"\
-    "    return matriceSource.getPixel(x, y).compare(matriceCible.getPixel(x, y))"
-    print(excecGetTokenizeCode(code, False))
