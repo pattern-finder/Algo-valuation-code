@@ -70,8 +70,8 @@ if __name__ == '__main__':
 
     payload = {
    #     "eval variable name":excecEvalVariableNamePython(code),
-     #   "eval redondance": excecEvalRedondance(code),
-      "eval plagiat": excecGetTokenizeCode(code, False),
+      "eval redondance": excecEvalRedondance(code),
+      "eval plagiat": excecGetTokenizeCode(code, True),
    #      "eval plagiat": excecEvalPlagiat(codepattern, user_pattern),
 
         #    "eval nb ligne fonction": excecEvalNbLigneFonctionPy(code),

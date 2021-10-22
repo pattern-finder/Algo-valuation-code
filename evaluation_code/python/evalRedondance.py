@@ -594,6 +594,8 @@ def excecEvalRedondance(code):
         if sanitize_code_dict[block] > 1:
             cptRedondance += sanitize_code_dict[block]-1
 
+        print(block)
+
     return cptRedondance
 
 
